@@ -461,7 +461,7 @@ class _SIOSupervisedExecutor(SandboxExecutor):
     _oiaug_codes = ['OK', 'RV', 'RE', 'TLE', 'MLE', 'OLE']
 
     DEFAULT_MEMORY_LIMIT = 64 * 2**10  # (in KiB)
-    DEFAULT_OUTPUT_LIMIT = 50 * 2**20  # (in B)
+    DEFAULT_OUTPUT_LIMIT = 100 * 2**20  # (in B)
     DEFAULT_TIME_LIMIT = 30000  # (default virtual time limit in ms)
     REAL_TIME_LIMIT_MULTIPLIER = 64
     REAL_TIME_LIMIT_ADDEND = 1000  # (in ms)
