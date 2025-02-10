@@ -12,7 +12,7 @@ from sio.workers.file_runners import get_file_runner
 import signal
 import six
 
-DEFAULT_INTERACTOR_MEM_LIMIT = 256 * 2 ** 10  # in KiB
+DEFAULT_INTERACTOR_MEM_LIMIT = 512 * 2 ** 10  # in KiB
 RESULT_STRING_LENGTH_LIMIT = 1024  # in bytes
 
 
@@ -82,6 +82,20 @@ def _fill_result(env, renv, irenv, interactor_out):
     inter_sig = irenv.get('exit_signal', None)
     sigpipe = signal.SIGPIPE.value
 
+    # +------------------+-----------------+-------------+-------------------------+------------+
+    # |     \ interactor | OK              | OK          | SIGPIPE                 | != OK      |
+    # | user \           | `out` not empty | `out` empty |                         | != SIGPIPE |
+    # +------------------+-----------------+-------------+-------------------------+------------+
+    # | OK               | check           | SE          | WA                      | SE         |
+    # |                  | interactor out  | invalid out | user exited prematurely |            |
+    # +------------------+-----------------+-------------+-------------------------+------------+
+    # | SIGPIPE          | check           | SE          | (should not happen)     | SE         |
+    # |                  | interactor out  | invalid out |                         |            |
+    # +------------------+-----------------+-------------+-------------------------+------------+
+    # | != OK            | check           | check user  | check user verdict      | SE         |
+    # | != SIGPIPE       | user verdict    | verdict     |                         |            |
+    # +------------------+-----------------+-------------+-------------------------+------------+
+
     if six.ensure_binary(interactor_out[0]) != b'':
         renv['result_string'] = ''
         if six.ensure_binary(interactor_out[0]) == b'OK':
@@ -89,7 +103,7 @@ def _fill_result(env, renv, irenv, interactor_out):
             if interactor_out[1]:
                 renv['result_string'] = _limit_length(interactor_out[1])
             renv['result_percentage'] = output_to_fraction(interactor_out[2])
-        else:
+        elif sol_sig == sigpipe:
             renv['result_code'] = 'WA'
             if interactor_out[1]:
                 renv['result_string'] = _limit_length(interactor_out[1])
@@ -110,6 +124,7 @@ def _fill_result(env, renv, irenv, interactor_out):
         renv['result_string'] = 'interactor time limit exceeded'
     else:
         raise InteractorError(f'WTF????//', interactor_out, env, renv, irenv)
+
 
 def _run(environ, executor, use_sandboxes):
     input_name = tempcwd('in')
@@ -145,7 +160,8 @@ def _run(environ, executor, use_sandboxes):
         for i in range(num_processes):
             interactor_args.extend([str(pipes[i].r_interactor), str(pipes[i].w_interactor)])
 
-        interactor_time_limit = 2 * environ['exec_time_limit']
+        # interactor_time_limit = 2 * environ['exec_time_limit']
+        interactor_time_limit = 10000
 
         class ExecutionWrapper(Thread):
             def __init__(self, executor, *args, **kwargs):
