@@ -98,11 +98,22 @@ def _fill_result(env, renv, irenv, interactor_out):
     # +------------------+-----------------+-------------+-------------------------+------------+
 
     if six.ensure_binary(interactor_out[0]) != b'':
+        mode = env.get('exec_info', {}).get('mode', None)
+        if mode == 'python3' and renv['result_code'] == 'RE': # I HATE PYTHON
+            renv['result_code'] = 'OK' if six.ensure_binary(interactor_out[0]) == b'OK' else 'WA'
+            if interactor_out[1]:
+                renv['result_string'] = _limit_length(interactor_out[1])
+            renv['result_percentage'] = output_to_fraction(interactor_out[2]) if renv['result_code'] == 'OK' else (0, 1)
         if six.ensure_binary(interactor_out[0]) == b'OK':
             renv['result_code'] = 'OK'
             if interactor_out[1]:
                 renv['result_string'] = _limit_length(interactor_out[1])
             renv['result_percentage'] = output_to_fraction(interactor_out[2])
+        elif renv['result_code'] == 'OK':
+            renv['result_code'] = 'WA'
+            if interactor_out[1]:
+                renv['result_string'] = _limit_length(interactor_out[1])
+            renv['result_percentage'] = (0, 1)
         elif sol_sig == sigpipe:
             renv['result_code'] = 'WA'
             if interactor_out[1]:
