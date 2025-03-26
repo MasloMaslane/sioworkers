@@ -11,10 +11,14 @@ from sio.workers.util import TemporaryCwd, decode_fields, replace_invalid_UTF, t
 from sio.workers.file_runners import get_file_runner
 
 import signal
+import fcntl
 import six
 
 DEFAULT_INTERACTOR_MEM_LIMIT = 512 * 2 ** 10  # in KiB
 RESULT_STRING_LENGTH_LIMIT = 1024  # in bytes
+
+F_GETPIPE_SZ = 1032  # Command to get pipe size
+F_SETPIPE_SZ = 1031  # Command to set pipe size
 
 
 class InteractorError(Exception):
@@ -164,6 +168,7 @@ def _run(environ, executor, use_sandboxes):
             r2, w2 = os.pipe()
             for fd in (r1, w1, r2, w2):
                 os.set_inheritable(fd, True)
+                fcntl.fcntl(fd, F_SETPIPE_SZ, 4194304)
             pipes.append(Pipes(r1, w2, r2, w1))
 
         interactor_args = [str(num_processes)]
