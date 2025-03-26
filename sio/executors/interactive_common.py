@@ -177,7 +177,7 @@ def _run(environ, executor, use_sandboxes):
             interactor_args.extend([str(pipes[i].r_interactor), str(pipes[i].w_interactor)])
 
         # interactor_time_limit = 2 * environ['exec_time_limit']
-        interactor_time_limit = 10000
+        interactor_time_limit = 120000
 
         class ExecutionWrapper(Thread):
             def __init__(self, executor, environ, *args, **kwargs):
