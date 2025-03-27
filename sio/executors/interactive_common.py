@@ -95,7 +95,7 @@ def _fill_result(env, renv, irenv, interactor_out):
     # |                  | interactor out  | invalid out | user exited prematurely |            |
     # +------------------+-----------------+-------------+-------------------------+------------+
     # | SIGPIPE          | check           | SE          | (should not happen)     | SE         |
-    # |                  | interactor out  | invalid out |                         |            |
+    # | real time killed | interactor out  | invalid out |                         |            |
     # +------------------+-----------------+-------------+-------------------------+------------+
     # | != OK            | check           | check user  | check user verdict      | SE         |
     # | != SIGPIPE       | user verdict    | verdict     |                         |            |
@@ -118,7 +118,7 @@ def _fill_result(env, renv, irenv, interactor_out):
             if interactor_out[1]:
                 renv['result_string'] = _limit_length(interactor_out[1])
             renv['result_percentage'] = (0, 1)
-        elif sol_sig == sigpipe:
+        elif sol_sig == sigpipe or ('real_time_killed' in renv or renv['result_string'] == 'real time limit exceeded'):
             renv['result_code'] = 'WA'
             if interactor_out[1]:
                 renv['result_string'] = _limit_length(interactor_out[1])
