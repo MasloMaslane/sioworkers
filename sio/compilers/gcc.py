@@ -125,3 +125,4 @@ run_cpp_gcc8_3_cpp17 = run_gplusplus8_3_cpp17
 run_cpp_gcc8_3_cpp17_amd64 = run_gplusplus8_3_cpp17_amd64
 run_cpp_gcc10_2_cpp17_amd64 = run_gplusplus10_2_cpp17_amd64
 run_cpp_gcc12_2_cpp20_amd64 = run_gplusplus12_2_cpp20_amd64
+run_cpp_gcc14_2_cpp23_amd64 = run_gplusplus14_2_cpp23_amd64
