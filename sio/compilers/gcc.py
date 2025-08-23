@@ -63,6 +63,13 @@ class CPPCompiler(CStyleCompiler):
         obj.options = ['-std=c++20', '-static', '-O3', '-s']
         return obj
 
+    @classmethod
+    def gcc_14_2_cpp23_amd64(cls):
+        obj = cls('gcc.14_2_0')
+        obj.compiler = 'g++'
+        obj.options = ['-std=c++23', '-static', '-O3', '-s']
+        return obj
+
 
 
 def run_gcc4_8_2_c99(environ):
@@ -99,6 +106,9 @@ def run_gplusplus10_2_cpp17_amd64(environ):
 
 def run_gplusplus12_2_cpp20_amd64(environ):
     return CPPCompiler.gcc_12_2_cpp20_amd64().compile(environ)
+
+def run_gplusplus14_2_cpp23_amd64(environ):
+    return CPPCompiler.gcc_14_2_cpp23_amd64().compile(environ)
 
 
 def run_gplusplus_default(environ):
